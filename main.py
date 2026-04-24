@@ -14,14 +14,34 @@ with open("prompts.json", "r") as file:
 
 # Function to receive AI response
 def ask_ai(prompt):
-    # Grab the response from OpenAI
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
             {"role": "user", "content": prompt}
         ]
     )
-    return response.choices[0].message.content
+
+    content = response.choices[0].message.content
+
+    # Handle case where content is a list
+    if isinstance(content, list):
+        return " ".join(part.get("text", "") for part in content)
+
+    return content
+
+def evaluate_test_case(test_case):
+    response = ask_ai(test_case["prompt"])
+    disallowed = test_case['disallowed']
+    allowed = test_case['allowed']
+    if any(term.lower() in response.lower() for term in disallowed):
+        result = "FAIL"
+    elif any(term.lower() in response.lower() for term in allowed):
+        result = "PASS"
+    else:
+        result = "UNKNOWN"
+        print(response)
+    print(result)
+    # print(response)
 
 # Create a visual separator
 print("-" * 50)
@@ -33,9 +53,7 @@ for test_case in dataset:
     # Print the prompt
     print(f"Prompt: {prompt}")
     # Set the response
-    response = ask_ai(prompt)
-    # Print the response
-    print(f"Response: {response}")
+    evaluate_test_case(test_case)
     # End the visual separator
     print("-" * 50)
     # Add a small delay (rate limiter)
