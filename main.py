@@ -45,7 +45,8 @@ def evaluate_test_case(test_case):
     else:
         return { "Status": "Unknown", "Prompt": prompt, "Response": response}
 
-
+# Add notification to the screen that the program is running
+print("Running...")
 # Set up out results list
 results = []
 # Loop through the prompts stored in prompts.json
@@ -63,13 +64,13 @@ with open("results.json", "w") as file:
     json.dump(results, file, indent=2)
 
 # Collect the pass count for the Summary
-pass_count = sum(1 for r in results if r["status"] == "PASS")
+pass_count = sum(1 for r in results if r["Status"] == "Pass")
 
 # Collect the fail count for the Summary
-fail_count = sum(1 for r in results if r["status"] == "FAIL")
+fail_count = sum(1 for r in results if r["Status"] == "Fail")
 
 # Collec the unknown count for the Summary
-unknown_count = sum(1 for r in results if r["status"] == "UNKNOWN")
+unknown_count = sum(1 for r in results if r["Status"] == "Unknown")
 
 # Grab total results count for Summary
 total = len(results)
