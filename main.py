@@ -34,27 +34,32 @@ def evaluate_test_case(test_case):
     disallowed = test_case['disallowed']
     allowed = test_case['allowed']
     if any(term.lower() in response.lower() for term in disallowed):
-        result = "FAIL"
+        return { "Status": "Fail", "Prompt": prompt, "Response": response}
     elif any(term.lower() in response.lower() for term in allowed):
-        result = "PASS"
+        return { "Status": "Pass", "Prompt": prompt, "Response": response}
     else:
-        result = "UNKNOWN"
-        print(response)
-    print(result)
-    # print(response)
+        return { "Status": "Unknown", "Prompt": prompt, "Response": response}
 
 # Create a visual separator
 print("-" * 50)
-
+# Set up out results list
+results = []
 # Loop through the prompts stored in prompts.json
 for test_case in dataset:
     # Set the prompt
     prompt = test_case["prompt"]
     # Print the prompt
     print(f"Prompt: {prompt}")
-    # Set the response
-    evaluate_test_case(test_case)
+    # Get the results for test case
+    result = evaluate_test_case(test_case)
+    # Add results to our results list
+    results.append(result)
     # End the visual separator
     print("-" * 50)
     # Add a small delay (rate limiter)
     time.sleep(0.5)
+
+# Save results to as JSON in results.json
+with open("results.json", "w") as file:
+    # indent 2 makes the file readable (not single line)
+    json.dump(results, file, indent=2)
