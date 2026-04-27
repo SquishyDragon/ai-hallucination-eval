@@ -30,32 +30,30 @@ def ask_ai(prompt):
     return content
 
 def evaluate_test_case(test_case):
-    response = ask_ai(test_case["prompt"])
+    # Set constants
+    prompt = test_case["prompt"]
+    response = ask_ai(prompt)
     disallowed = test_case['disallowed']
     allowed = test_case['allowed']
+    # Run our response against out disallowed behavior patterns to check for hallucination
     if any(term.lower() in response.lower() for term in disallowed):
         return { "Status": "Fail", "Prompt": prompt, "Response": response}
+    # Run our response against out allowed behavior patterns to check for no hallucination
     elif any(term.lower() in response.lower() for term in allowed):
         return { "Status": "Pass", "Prompt": prompt, "Response": response}
+    # If response did not match behaviors for allowed or disallowed behaviors assign unknown status
     else:
         return { "Status": "Unknown", "Prompt": prompt, "Response": response}
 
-# Create a visual separator
-print("-" * 50)
+
 # Set up out results list
 results = []
 # Loop through the prompts stored in prompts.json
 for test_case in dataset:
-    # Set the prompt
-    prompt = test_case["prompt"]
-    # Print the prompt
-    print(f"Prompt: {prompt}")
     # Get the results for test case
     result = evaluate_test_case(test_case)
     # Add results to our results list
     results.append(result)
-    # End the visual separator
-    print("-" * 50)
     # Add a small delay (rate limiter)
     time.sleep(0.5)
 
@@ -63,3 +61,26 @@ for test_case in dataset:
 with open("results.json", "w") as file:
     # indent 2 makes the file readable (not single line)
     json.dump(results, file, indent=2)
+
+# Collect the pass count for the Summary
+pass_count = sum(1 for r in results if r["status"] == "PASS")
+
+# Collect the fail count for the Summary
+fail_count = sum(1 for r in results if r["status"] == "FAIL")
+
+# Collec the unknown count for the Summary
+unknown_count = sum(1 for r in results if r["status"] == "UNKNOWN")
+
+# Grab total results count for Summary
+total = len(results)
+
+# Header for summary
+print("\n=== Evaluation Summary ===")
+# Total evaluations ran
+print(f"Total: {total}")
+# Total evaluations that passed
+print(f"PASS: {pass_count}")
+# Total evaluations that failed
+print(f"FAIL: {fail_count}")
+# Total evaluations with unknown outcome
+print(f"UNKNOWN: {unknown_count}")
