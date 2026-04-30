@@ -39,3 +39,54 @@ AI-based evaluation may still be used later as a **secondary signal**, not as th
 * Introduce hybrid evaluation (rule-based + AI judge for edge cases)
 * Add confidence scoring to capture uncertainty in borderline cases
 * Explore disagreement detection between rule-based and AI-based evaluations
+
+## [2026-04-30] – Decision: Add Explicit Behavior Matching + Reason Tracking
+
+### Initial Idea
+
+Return simple evaluation results:
+
+PASS / FAIL / UNKNOWN
+
+### Assumption
+
+A binary or simple status output would be sufficient to understand model behavior.
+
+### Issue Discovered
+
+Simple status labels lack explainability and make it difficult to:
+
+* Understand why a response passed or failed
+* Debug incorrect evaluations
+* Identify patterns in hallucination behavior
+* Communicate results clearly to others
+
+This created friction when analyzing results and validating the evaluator itself.
+
+### Key Insight
+
+Evaluation systems are only as useful as their ability to explain decisions.
+
+A result without reasoning is difficult to trust, debug, or improve.
+
+### Decision
+
+Capture and return the matched behavior terms that triggered the evaluation.
+
+Each result now includes:
+
+* Matched allowed terms (for PASS)
+* Matched disallowed terms (for FAIL)
+* A human-readable message using f-strings, e.g.:
+* Test fake_api_001 FAILED based on behavior match of '/v1/teleport'
+
+### Impact
+* Improved transparency and debuggability
+* Enabled faster iteration on evaluation rules
+* Made results more interpretable and demo-friendly
+* Provided a foundation for future analysis (e.g., top failure patterns)
+
+### Future Considerations
+* Aggregate matched terms to identify common hallucination patterns
+* Rank failure causes by frequency
+* Introduce severity weighting based on matched terms

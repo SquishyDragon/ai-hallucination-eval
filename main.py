@@ -50,15 +50,18 @@ def evaluate_test_case(test_case):
 
     # Run our response against out disallowed behavior patterns to check for hallucination
     if matched_disallowed:
-        return { "Status": "Fail", "Prompt": prompt, "Response": response, "Failing Match": matched_disallowed }
+        message = message = f"Test {test_id} FAILED based on behavior match of '{matched_disallowed}'"
+        return { "Status": "Fail", "Prompt": prompt, "Response": response, "Failing Match": matched_disallowed, "Message": message }
 
     # Run our response against out allowed behavior patterns to check for no hallucination
     elif matched_allowed:
-        return { "Status": "Pass", "Prompt": prompt, "Response": response, "Passing Match": matched_allowed}
+        message = f"Test {test_id} PASSED based on behavior match of '{matched_allowed}'"
+        return { "Status": "Pass", "Prompt": prompt, "Response": response, "Passing Match": matched_allowed, "Message": message }
 
     # If response did not match behaviors for allowed or disallowed behaviors assign unknown status
     else:
-        return { "Status": "Unknown", "Prompt": prompt, "Response": response}
+        message = f"Test {test_id} UNKOWN based on no behavior matches"
+        return { "Status": "Unknown", "Prompt": prompt, "Response": response, "Message": message}
 
 # Add notification to the screen that the program is running
 print("Running...")
