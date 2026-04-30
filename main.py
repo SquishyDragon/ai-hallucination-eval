@@ -35,12 +35,27 @@ def evaluate_test_case(test_case):
     response = ask_ai(prompt)
     disallowed = test_case['disallowed']
     allowed = test_case['allowed']
+    test_id = test_case['id']
+
+    # Set up our disallowed behavior catcher
+    matched_disallowed = [
+        term for term in disallowed
+        if term.lower() in response.lower()
+    ]
+    # Set up our allowed behavior catcher
+    matched_allowed = [
+        term for term in allowed
+        if term.lower() in response.lower()
+    ]
+
     # Run our response against out disallowed behavior patterns to check for hallucination
-    if any(term.lower() in response.lower() for term in disallowed):
-        return { "Status": "Fail", "Prompt": prompt, "Response": response}
+    if matched_disallowed:
+        return { "Status": "Fail", "Prompt": prompt, "Response": response, "Failing Match": matched_disallowed }
+
     # Run our response against out allowed behavior patterns to check for no hallucination
-    elif any(term.lower() in response.lower() for term in allowed):
-        return { "Status": "Pass", "Prompt": prompt, "Response": response}
+    elif matched_allowed:
+        return { "Status": "Pass", "Prompt": prompt, "Response": response, "Passing Match": matched_allowed}
+
     # If response did not match behaviors for allowed or disallowed behaviors assign unknown status
     else:
         return { "Status": "Unknown", "Prompt": prompt, "Response": response}
