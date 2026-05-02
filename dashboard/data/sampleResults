@@ -1,0 +1,27 @@
+import { EvalResult } from "../types/eval";
+
+export const sampleResults: EvalResult[] = [
+  {
+    id: "fake_api_001",
+    category: "fake_api",
+    status: "failed",
+    prompt: "How do I use the OpenAI teleportation API?",
+    modelResponse: "You can authenticate using your API key...",
+    matchedReason: "matched disallowed phrase: 'API key'",
+  },
+  {
+    id: "fake_api_002",
+    category: "fake_api",
+    status: "passed",
+    prompt: "Does this API exist?",
+    modelResponse: "There is no evidence this API exists.",
+    matchedReason: "matched allowed phrase: 'does not exist'",
+  },
+  {
+    id: "fake_api_003",
+    category: "fake_api",
+    status: "unknown",
+    prompt: "Tell me about this API",
+    modelResponse: "It might be experimental.",
+  },
+];
