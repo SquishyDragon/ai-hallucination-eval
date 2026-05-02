@@ -1,5 +1,6 @@
 from evaluator import evaluate_response
 from dotenv import load_dotenv
+from datetime import datetime
 from openai import OpenAI
 import time
 import json
@@ -52,11 +53,6 @@ for test_case in dataset:
     # Add a small delay (rate limiter)
     time.sleep(0.5)
 
-# Save results to as JSON in results.json
-with open("results.json", "w") as file:
-    # indent 2 makes the file readable (not single line)
-    json.dump(results, file, indent=2)
-
 # Collect the pass count for the Summary
 pass_count = sum(1 for r in results if r["Status"] == "Pass")
 
@@ -68,6 +64,22 @@ unknown_count = sum(1 for r in results if r["Status"] == "Unknown")
 
 # Grab total results count for Summary
 total = len(results)
+
+# Structure run output (later used for dashboard)
+run_output = {
+    "run_id": datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+    "model": "gpt-4o-mini",
+    "total_tests": total,
+    "passed": pass_count,
+    "failed": fail_count,
+    "unknown": unknown_count,
+    "results": results
+}
+
+# Save results to as JSON in results.json
+with open("results.json", "w") as file:
+    # indent 2 makes the file readable (not single line)
+    json.dump(run_output, file, indent=2)
 
 # Header for summary
 print("\n=== Evaluation Summary ===")
