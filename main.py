@@ -1,3 +1,4 @@
+from evaluator import evaluate_response
 from dotenv import load_dotenv
 from openai import OpenAI
 import time
@@ -14,6 +15,7 @@ with open("prompts.json", "r") as file:
 
 # Function to receive AI response
 def ask_ai(prompt):
+    # Send prompt and grab the total response
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
@@ -21,47 +23,15 @@ def ask_ai(prompt):
         ]
     )
 
+    # Grab the content of the response
     content = response.choices[0].message.content
 
-    # Handle case where content is a list
+    # Handle case where return as a list
     if isinstance(content, list):
         return " ".join(part.get("text", "") for part in content)
 
     return content
 
-def evaluate_test_case(test_case):
-    # Set constants
-    prompt = test_case["prompt"]
-    response = ask_ai(prompt)
-    disallowed = test_case['disallowed']
-    allowed = test_case['allowed']
-    test_id = test_case['id']
-
-    # Set up our disallowed behavior catcher
-    matched_disallowed = [
-        term for term in disallowed
-        if term.lower() in response.lower()
-    ]
-    # Set up our allowed behavior catcher
-    matched_allowed = [
-        term for term in allowed
-        if term.lower() in response.lower()
-    ]
-
-    # Run our response against out disallowed behavior patterns to check for hallucination
-    if matched_disallowed:
-        message = f"Test {test_id} FAILED based on behavior match: {', '.join(matched_disallowed)}"
-        return { "Status": "Fail", "Prompt": prompt, "Response": response, "Failing Match": matched_disallowed, "Message": message }
-
-    # Run our response against out allowed behavior patterns to check for no hallucination
-    elif matched_allowed:
-        message = f'Test {test_id} PASSED based on behavior match of "{", ".join(matched_allowed)}"'
-        return { "Status": "Pass", "Prompt": prompt, "Response": response, "Passing Match": matched_allowed, "Message": message }
-
-    # If response did not match behaviors for allowed or disallowed behaviors assign unknown status
-    else:
-        message = f"Test {test_id} UNKOWN based on no behavior matches"
-        return { "Status": "Unknown", "Prompt": prompt, "Response": response, "Message": message}
 
 # Add notification to the screen that the program is running
 print("Running...")
@@ -69,10 +39,16 @@ print("Running...")
 results = []
 # Loop through the prompts stored in prompts.json
 for test_case in dataset:
-    # Get the results for test case
-    result = evaluate_test_case(test_case)
-    # Add results to our results list
+    # Pull the prompt from our test case
+    prompt = test_case["prompt"]
+    # Get the response from the ai
+    response = ask_ai(prompt)
+    # Evaluate response and save to result
+    result = evaluate_response(test_case, response)
+    # Add result to our results list
     results.append(result)
+    # Print the result
+    print(result["Message"])
     # Add a small delay (rate limiter)
     time.sleep(0.5)
 
@@ -87,7 +63,7 @@ pass_count = sum(1 for r in results if r["Status"] == "Pass")
 # Collect the fail count for the Summary
 fail_count = sum(1 for r in results if r["Status"] == "Fail")
 
-# Collec the unknown count for the Summary
+# Collect the unknown count for the Summary
 unknown_count = sum(1 for r in results if r["Status"] == "Unknown")
 
 # Grab total results count for Summary
