@@ -90,3 +90,56 @@ Each result now includes:
 * Aggregate matched terms to identify common hallucination patterns
 * Rank failure causes by frequency
 * Introduce severity weighting based on matched terms
+
+
+## [2026-05-02] – Introduce run_id for Evaluation Runs
+
+### Decision
+
+Add a run_id field to each evaluation output to uniquely identify and group results from a single execution.
+
+### Context
+
+# Initial implementation saved evaluation results as a single JSON file without any identifier linking results to a specific run. As the system evolved toward a multi-run evaluation platform, this structure lacked the ability to:
+
+* distinguish between separate evaluation executions
+track historical results over time
+support comparison across runs or models
+Rationale
+
+* Adding a run_id enables each evaluation to be treated as a discrete, trackable unit.
+
+* This provides several immediate and future benefits:
+
+* Traceability: Each result set can be uniquely identified
+* Reproducibility: Runs can be referenced and analyzed independently
+* Scalability: Supports storing multiple runs without overwriting data
+* Organization: Enables clean grouping of results for analysis
+
+# Most importantly, this decision directly supports the planned dashboard layer, where:
+
+* multiple runs will be displayed
+* users may compare results across models or configurations
+* historical trends and regressions can be visualized
+
+# Without a run_id, building a meaningful frontend or analysis layer would be significantly more complex.
+
+### Tradeoffs
+
+# Pros:
+
+* Enables future dashboard and comparison features
+* Improves data organization and clarity
+* Aligns with real-world evaluation system design
+
+# Cons:
+
+* Slight increase in output complexity
+* Requires consistent handling across future features
+* Status
+
+### Future Considerations
+* Persist multiple run files instead of overwriting latest_results.json
+* Introduce run history tracking (e.g., results/run_<id>.json)
+* Enable filtering and comparison of runs in the dashboard
+* Add metadata (e.g., model version, timestamp, prompt set version) to each run
