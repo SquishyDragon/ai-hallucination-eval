@@ -55,15 +55,18 @@ for test_case in dataset:
 
 # Collect the pass count for the Summary
 pass_count = sum(1 for r in results if r["Status"] == "Pass")
-
 # Collect the fail count for the Summary
 fail_count = sum(1 for r in results if r["Status"] == "Fail")
-
 # Collect the unknown count for the Summary
 unknown_count = sum(1 for r in results if r["Status"] == "Unknown")
-
 # Grab total results count for Summary
 total = len(results)
+# Get pass rate
+pass_rate = (pass_count / total) * 100 if total else 0
+# Get fail rate
+fail_rate = (fail_count / total) * 100 if total else 0
+# Get unkown rate
+unknown_rate = (unknown_count / total) * 100 if total else 0
 
 # Structure run output (later used for dashboard)
 run_output = {
@@ -88,9 +91,9 @@ with open("results/latest_results.json", "w") as file:
 print("\n=== Evaluation Summary ===")
 # Total evaluations ran
 print(f"Total: {total}")
-# Total evaluations that passed
-print(f"PASS: {pass_count}")
-# Total evaluations that failed
-print(f"FAIL: {fail_count}")
-# Total evaluations with unknown outcome
-print(f"UNKNOWN: {unknown_count}")
+# Total evaluations that passed (format to 1 decimal float)
+print(f"PASS: {pass_count} ({pass_rate:.1f}%)")
+# Total evaluations that failed (format to 1 decimal float)
+print(f"FAIL: {fail_count} ({fail_rate:.1f}%)")
+# Total evaluations with unknown outcome (format to 1 decimal float)
+print(f"UNKNOWN: {unknown_count} ({unknown_rate:.1f}%)")
