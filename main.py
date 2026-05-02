@@ -76,8 +76,11 @@ run_output = {
     "results": results
 }
 
+# Sanity check folder exists
+os.makedirs("results", exist_ok=True)
+
 # Save results to as JSON in results.json
-with open("results.json", "w") as file:
+with open("results/latest_results.json", "w") as file:
     # indent 2 makes the file readable (not single line)
     json.dump(run_output, file, indent=2)
 
