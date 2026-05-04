@@ -1,5 +1,27 @@
 export default function Home() {
 
+  const run = {
+    runId: "2026-05-03_21-30-00",
+    model: "gpt-4o-mini",
+    category: "Fake API",
+    total: 6,
+    passed: 5,
+    failed: 0,
+    unknown: 1,
+    passRate: 83.3,
+    results: [
+      {
+        id: "fake_api_001",
+        status: "Passed",
+        match: "does not exist",
+      },
+      {
+        id: "fake_api_002",
+        status: "Unknown",
+        match: "No match detected",
+      },
+    ],
+  };
 
   return (
     <div className="flex h-screen bg-gray-200">
@@ -9,9 +31,9 @@ export default function Home() {
 
         <div className="space-y-3">
           <div className="p-3 bg-gray-700 rounded cursor-pointer">
-            <div className="font-semibold">gpt-4o-mini</div>
-            <div className="text-sm text-gray-300">Fake API</div>
-            <div className="text-xs text-green-400">Pass: 76%</div>
+            <div className="font-semibold">{run.model}</div>
+            <div className="text-sm text-gray-300">{run.category}</div>
+            <div className="text-xs text-green-400">Pass: {run.passRate}</div>
           </div>
 
           <div className="p-3 bg-gray-800 rounded cursor-pointer">
@@ -29,29 +51,31 @@ export default function Home() {
           <h1 className="text-2xl font-bold text-gray-600">
             Investigation View
           </h1>
-          <p className="text-gray-600">Fake API • gpt-4o-mini • Run 04/30</p>
+          <p className="text-gray-600">
+            {run.category} • {run.model} • {run.runId}
+          </p>
         </div>
 
         {/* Summary Cards */}
         <div className="grid grid-cols-4 gap-4 mb-6">
           <div className="bg-white p-4 rounded shadow">
             <div className="text-sm text-gray-500">Total</div>
-            <div className="text-2xl font-semibold text-gray-500">100</div>
+            <div className="text-2xl font-semibold text-gray-500">{run.total}</div>
           </div>
 
           <div className="bg-green-100 p-4 rounded">
             <div className="text-sm text-gray-500">Passed</div>
-            <div className="text-2xl font-semibold text-gray-500">76</div>
+            <div className="text-2xl font-semibold text-gray-500">{run.passed}</div>
           </div>
 
           <div className="bg-red-100 p-4 rounded">
             <div className="text-sm text-gray-500">Failed</div>
-            <div className="text-2xl font-semibold text-gray-500">18</div>
+            <div className="text-2xl font-semibold text-gray-500">{run.failed}</div>
           </div>
 
           <div className="bg-yellow-100 p-4 rounded">
             <div className="text-sm text-gray-500">Unknown</div>
-            <div className="text-2xl font-semibold text-gray-500">6</div>
+            <div className="text-2xl font-semibold text-gray-500">{run.unknown}</div>
           </div>
         </div>
 
