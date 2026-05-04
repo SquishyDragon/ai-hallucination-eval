@@ -126,18 +126,21 @@ run_output = {
     "model": MODEL,
     "total_tests": total,
     "passed": pass_count,
+    "pass_rate": round(pass_rate, 1),
     "failed": fail_count,
+    "fail_rate": round(fail_rate, 1),
     "unknown": unknown_count,
+    "unknown_rate": round(unknown_rate, 1),
     "results": results,
     "conflicts": conflict_count,
-    "conflict_rate": conflict_rate,
+    "conflict_rate": round(conflict_rate, 1),
 }
 
 # Sanity check folder exists
-os.makedirs("results", exist_ok=True)
+os.makedirs("public", exist_ok=True)
 
 # Save results to as JSON in results.json
-with open("results/latest_results.json", "w") as file:
+with open("public/latest_results.json", "w") as file:
     # indent 2 makes the file readable (not single line)
     json.dump(run_output, file, indent=2)
 
