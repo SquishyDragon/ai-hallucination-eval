@@ -15,9 +15,24 @@ def evaluate_response(test_case, response):
         term for term in allowed
         if term.lower() in response.lower()
     ]
+    # Check for a conflict first
+    if matched_allowed and matched_disallowed:
+        message = (
+        f"Test {test_id} CONFLICT based on both allowed and disallowed matches. "
+        f"Allowed: {', '.join(matched_allowed)} | "
+        f"Disallowed: {', '.join(matched_disallowed)}"
+        )
 
+        return {
+            "Status": "Conflict",
+            "Prompt": prompt,
+            "Response": response,
+            "Passing Match": matched_allowed,
+            "Failing Match": matched_disallowed,
+            "Message": message
+        }
     # Run our response against out disallowed behavior patterns to check for hallucination
-    if matched_disallowed:
+    elif matched_disallowed:
         message = f"Test {test_id} FAILED based on behavior match: {', '.join(matched_disallowed)}"
         return { "Status": "Fail", "Prompt": prompt, "Response": response, "Failing Match": matched_disallowed, "Message": message }
 

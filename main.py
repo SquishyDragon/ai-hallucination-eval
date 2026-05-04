@@ -82,6 +82,8 @@ for test_case in dataset:
     # Add a small delay (rate limiter)
     time.sleep(0.5)
 
+# Collect the conflict count for the Summary
+conflict_count = sum(1 for r in results if r["Status"] == "Conflict")
 # Collect the pass count for the Summary
 pass_count = sum(1 for r in results if r["Status"] == "Pass")
 # Collect the fail count for the Summary
@@ -90,6 +92,8 @@ fail_count = sum(1 for r in results if r["Status"] == "Fail")
 unknown_count = sum(1 for r in results if r["Status"] == "Unknown")
 # Grab total results count for Summary
 total = len(results)
+# Get the conflict rate
+conflict_rate = (conflict_count / total) * 100 if total else 0
 # Get pass rate
 pass_rate = (pass_count / total) * 100 if total else 0
 # Get fail rate
@@ -105,7 +109,9 @@ run_output = {
     "passed": pass_count,
     "failed": fail_count,
     "unknown": unknown_count,
-    "results": results
+    "results": results,
+    "conflicts": conflict_count,
+    "conflict_rate": conflict_rate,
 }
 
 # Sanity check folder exists
@@ -120,6 +126,8 @@ with open("results/latest_results.json", "w") as file:
 print("\n=== Evaluation Summary ===")
 # Total evaluations ran
 print(f"Total: {total}")
+# Total evaluations that have conflicts
+print(f"CONFLICT: {conflict_count} ({conflict_rate:.1f}%)")
 # Total evaluations that passed (format to 1 decimal float)
 print(f"PASS: {pass_count} ({pass_rate:.1f}%)")
 # Total evaluations that failed (format to 1 decimal float)
