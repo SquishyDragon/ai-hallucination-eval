@@ -6,29 +6,31 @@ export default function Home() {
   const [runs, setRuns] = useState<any[]>([]);
   const [selectedRun, setSelectedRun] = useState<any>(null);
 
-useEffect(() => {
-  fetch("/latest_results.json")
-    .then((res) => res.json())
-    .then((data) => {
-      setRuns(data);
-      setSelectedRun(data[0]);
-    })
-    .catch((err) => console.error("Failed to load results:", err));
-}, []);
+  useEffect(() => {
+    fetch("/latest_results.json")
+      .then((res) => res.json())
+      .then((data) => {
+        setRuns(data);
+        setSelectedRun(data[0]);
+      })
+      .catch((err) => console.error("Failed to load results:", err));
+  }, []);
 
   if (!selectedRun) {
     return <div className="p-6">Loading results...</div>;
   }
 
-  const normalizedResults = selectedRun.results.map((r: any, i: number) => ({
-    id: i + 1,
-    status: r.Status,
-    prompt: r.Prompt,
-    response: r.Response,
-    passingMatch: r["Passing Match"] || [],
-    failingMatch: r["Failing Match"] || [],
-    message: r.Message,
-  }));
+  const normalizedResults = (selectedRun?.results || []).map(
+    (r: any, i: number) => ({
+      id: i + 1,
+      status: r.Status,
+      prompt: r.Prompt,
+      response: r.Response,
+      passingMatch: r["Passing Match"] || [],
+      failingMatch: r["Failing Match"] || [],
+      message: r.Message,
+    }),
+  );
 
   const passed = normalizedResults.filter((r: any) => r.status === "Pass");
   const failed = normalizedResults.filter((r: any) => r.status === "Fail");
@@ -47,19 +49,12 @@ useEffect(() => {
 
         <div className="space-y-3">
           {runs.map((r, index) => (
-            <div
+            <RunCard
               key={index}
+              run={r}
+              isSelected={selectedRun?.run_id === r.run_id}
               onClick={() => setSelectedRun(r)}
-              className={`p-3 rounded cursor-pointer ${
-                selectedRun?.run_id === r.run_id ? "bg-gray-700" : "bg-gray-800"
-              }`}
-            >
-              <div className="font-semibold">{r.model}</div>
-              <div className="text-xs text-gray-300">{r.run_id}</div>
-              <div className="text-xs text-green-400">
-                Pass: {r.pass_rate.toFixed(1)}%
-              </div>
-            </div>
+            />
           ))}
         </div>
       </div>
@@ -129,6 +124,30 @@ useEffect(() => {
             emptyText="No passed tests"
           />
         </div>
+      </div>
+    </div>
+  );
+}
+
+function RunCard({ run, isSelected, onClick }: any) {
+  return (
+    <div
+      onClick={onClick}
+      className={`p-3 rounded cursor-pointer transition ${
+        isSelected ? "bg-gray-700" : "bg-gray-800 hover:bg-gray-700"
+      }`}
+    >
+      <div className="font-semibold">{run.model}</div>
+
+      <div className="text-xs text-gray-300">{run.run_id}</div>
+
+      <div className="text-xs text-green-400 mt-1">
+        Pass: {run.pass_rate.toFixed(1)}%
+      </div>
+
+      <div className="flex justify-between text-xs mt-1">
+        <span className="text-red-400">F: {run.failed}</span>
+        <span className="text-yellow-400">U: {run.unknown}</span>
       </div>
     </div>
   );
