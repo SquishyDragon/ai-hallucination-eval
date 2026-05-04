@@ -2,9 +2,19 @@ from evaluator import evaluate_response
 from dotenv import load_dotenv
 from datetime import datetime
 from openai import OpenAI
+import argparse
 import time
 import json
 import os
+
+# Parse CLI arguments
+parser = argparse.ArgumentParser()
+# Optional model argument (defaults to gpt-4o-mini)
+parser.add_argument("--model", default="gpt-4o-mini")
+# Extract parsed arguments
+args = parser.parse_args()
+# Set active model for this run
+MODEL = args.model
 
 # Load API key
 load_dotenv()
@@ -18,7 +28,7 @@ with open("prompts.json", "r") as file:
 def ask_ai(prompt):
     # Send prompt and grab the total response
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=MODEL,
         messages=[
             {"role": "user", "content": prompt}
         ]
@@ -71,7 +81,7 @@ unknown_rate = (unknown_count / total) * 100 if total else 0
 # Structure run output (later used for dashboard)
 run_output = {
     "run_id": datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
-    "model": "gpt-4o-mini",
+    "model": MODEL,
     "total_tests": total,
     "passed": pass_count,
     "failed": fail_count,
