@@ -33,23 +33,26 @@ if args.limit:
 
 # Function to receive AI response
 def ask_ai(prompt):
-    # Send prompt and grab the total response
-    response = client.chat.completions.create(
-        model=MODEL,
-        messages=[
-            {"role": "user", "content": prompt}
-        ]
-    )
+    try:
+        # Send prompt and grab the total response
+        response = client.chat.completions.create(
+            model=MODEL,
+            messages=[
+                {"role": "user", "content": prompt}
+            ]
+        )
 
-    # Grab the content of the response
-    content = response.choices[0].message.content
+        # Grab the content of the response
+        content = response.choices[0].message.content
 
-    # Handle case where return as a list
-    if isinstance(content, list):
-        return " ".join(part.get("text", "") for part in content)
+        # Handle case where return as a list
+        if isinstance(content, list):
+            return " ".join(part.get("text", "") for part in content)
 
-    return content
-
+        return content
+    except Exception as e:
+        print("API Erro: {e}")
+        return None
 
 # Print run model to screen
 print(f"Running {len(dataset)} evaluation with model: {MODEL}")
@@ -61,8 +64,17 @@ for test_case in dataset:
     prompt = test_case["prompt"]
     # Get the response from the ai
     response = ask_ai(prompt)
-    # Evaluate response and save to result
-    result = evaluate_response(test_case, response)
+    # Catch the error from ask_ai
+    if not response:
+        result = {
+            "Status": "ERROR",
+            "Prompt": prompt,
+            "Response": None,
+            "Message": f"Test {test_case['id']} ERROR - no response"
+        }
+    else:
+        # Evaluate response and save to result
+        result = evaluate_response(test_case, response)
     # Add result to our results list
     results.append(result)
     # Print the result
