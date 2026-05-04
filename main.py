@@ -18,6 +18,9 @@ args = parser.parse_args()
 # Set active model for this run
 MODEL = args.model
 
+# Basic test case validation
+required_fields = ["id", "prompt", "allowed", "disallowed"]
+
 # Load API key
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -60,8 +63,24 @@ print(f"Running {len(dataset)} evaluation with model: {MODEL}")
 results = []
 # Loop through the prompts stored in prompts.json
 for test_case in dataset:
+    #  Check for any missing required fields
+    missing_fields = [field for field in required_fields if field not in test_case]
     # Pull the prompt from our test case
     prompt = test_case["prompt"]
+    # If missing fields set our result status and mve on
+    if missing_fields:
+        result = {
+            "Status": "INVALID_TEST",
+            "Prompt": test_case.get("prompt", None),
+            "Response": None,
+            "Message": f"Test {test_case.get('id', 'UNKNOWN')} INVALID - missing fields: {', '.join(missing_fields)}"
+        }
+        # Save the results
+        results.append(result)
+        # Print the message out
+        print(result["Message"])
+        # Bypass sending the malformed test_case
+        continue
     # Get the response from the ai
     response = ask_ai(prompt)
     # Catch the error from ask_ai
