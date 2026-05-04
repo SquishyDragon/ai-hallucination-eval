@@ -143,3 +143,27 @@ Rationale
 * Introduce run history tracking (e.g., results/run_<id>.json)
 * Enable filtering and comparison of runs in the dashboard
 * Add metadata (e.g., model version, timestamp, prompt set version) to each run
+
+
+## [2026-05-03] – Decision: Defer Pressure-Based Severity System
+
+### Context
+While developing the evaluation framework, an idea emerged to classify prompts by "pressure" (how strongly they assume a concept exists) and derive hallucination severity based on that pressure.
+
+### Insight
+Hallucinations are not equally severe. A model failing under strong prompt assumptions is less concerning than failing under neutral or skeptical prompts.
+
+### Decision
+Defer implementation of pressure labeling and severity mapping to a future phase in order to:
+- Maintain momentum on core evaluation system (Phase 2)
+- Avoid overcomplicating current dataset structure
+- Ensure foundational features (run tracking, comparison) are completed first
+
+### Future Plan
+Introduce:
+- `pressure` field in dataset
+- Derived `severity` scoring
+- Weighted evaluation metrics and dashboard integration
+
+### Impact
+This will significantly improve the realism and usefulness of hallucination evaluation by incorporating contextual risk rather than binary correctness.
