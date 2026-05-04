@@ -11,6 +11,8 @@ import os
 parser = argparse.ArgumentParser()
 # Optional model argument (defaults to gpt-4o-mini)
 parser.add_argument("--model", default="gpt-4o-mini")
+# Optional limit argument
+parser.add_argument("--limit", type=int, default=None)
 # Extract parsed arguments
 args = parser.parse_args()
 # Set active model for this run
@@ -23,6 +25,11 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 # Open prompts.json as file, then load JSON from file
 with open("prompts.json", "r") as file:
     dataset = json.load(file)
+
+# If limit was passed
+if args.limit:
+    # Limit the dataset our length
+    dataset = dataset[:args.limit]
 
 # Function to receive AI response
 def ask_ai(prompt):
@@ -44,8 +51,8 @@ def ask_ai(prompt):
     return content
 
 
-# Add notification to the screen that the program is running
-print("Running...")
+# Print run model to screen
+print(f"Running {len(dataset)} evaluation with model: {MODEL}")
 # Set up out results list
 results = []
 # Loop through the prompts stored in prompts.json
